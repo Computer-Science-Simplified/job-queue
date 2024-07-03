@@ -4,19 +4,20 @@ namespace Computersciencesimplified\JobQueue\Queue;
 
 use mysqli;
 use Redis;
+use UnexpectedValueException;
 
 class QueueFactory
 {
-    public static function make(): Queue
+    public function make(): Queue
     {
         return match ($_ENV['QUEUE_DRIVER']) {
-            'redis' => self::makeRedisQueue(),
-            'database' => self::makeDatabaseQueue(),
-            default => new \UnexpectedValueException("Queue driver [" . $_ENV['QUEUE_DRIVER'] . "] is invalid"),
+            'redis' => $this->makeRedisQueue(),
+            'database' => $this->makeDatabaseQueue(),
+            default => throw new UnexpectedValueException("Queue driver [" . $_ENV['QUEUE_DRIVER'] . "] is invalid"),
         };
     }
 
-    private static function makeRedisQueue(): Queue
+    private function makeRedisQueue(): Queue
     {
         $redis = new Redis([
             'host' => $_ENV['REDIS_HOST'],
@@ -26,7 +27,7 @@ class QueueFactory
         return new RedisQueue($redis);
     }
 
-    private static function makeDatabaseQueue(): Queue
+    private function makeDatabaseQueue(): Queue
     {
         $mysql = new mysqli(
             $_ENV['DB_HOST'],

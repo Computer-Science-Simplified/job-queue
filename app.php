@@ -8,7 +8,7 @@ require('./vendor/autoload.php');
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
-$queue = QueueFactory::make();
+$queue = (new QueueFactory)->make();
 
 $queue->push(new ExampleJob('John'));
 $queue->push(new ExampleJob('Joe'));

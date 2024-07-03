@@ -7,7 +7,7 @@ use Exception;
 
 interface Queue
 {
-    public function push(Job  $job);
+    public function push(Job $job): void;
 
     public function pop(): ?Job;
 

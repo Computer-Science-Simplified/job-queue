@@ -11,9 +11,9 @@ class Worker
 {
     private Queue $queue;
 
-    public function __construct()
+    public function __construct(QueueFactory $factory)
     {
-        $this->queue = QueueFactory::make();
+        $this->queue = $factory->make();
     }
 
     public function work(): void
@@ -47,15 +47,20 @@ class Worker
     private function executeJob(?Job $job): void
     {
         try {
-            echo date('Y-m-d H:i:s') . "\t" . $job::class . "\t\t" . "PROCESSING\n";
+            $this->printStatus($job, 'PROCESSING');
 
             $job?->execute();
 
-            echo date('Y-m-d H:i:s') . "\t" . $job::class . "\t\t" . "DONE\n";
+            $this->printStatus($job, 'DONE');
         } catch (Exception $ex) {
             $this->queue->failed($job, $ex);
 
-            echo date('Y-m-d H:i:s') . "\t" . $job::class . "\t\t" . "FAILED\n";
+            $this->printStatus($job, 'FAILED');
         }
+    }
+
+    private function printStatus(Job $job, string $status): void
+    {
+        echo date('Y-m-d H:i:s') . "\t" . $job::class . "\t\t" . "$status\n";
     }
 }

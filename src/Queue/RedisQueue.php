@@ -13,12 +13,12 @@ class RedisQueue implements Queue
     {
     }
 
-    public function push(Job $job)
+    public function push(Job $job): void
     {
         $job->setId(uniqid());
 
         $result = $this->redis->rPush($this->getQueueName(), json_encode([
-            'job' => serialize($job),
+            'payload' => serialize($job),
         ]));
 
         if ($result === false) {
@@ -39,7 +39,7 @@ class RedisQueue implements Queue
     #[\Override] public function failed(Job $job, Exception $ex): void
     {
         $this->redis->rPush($this->getDeadLetterQueueName(), json_encode([
-            'job' => serialize($job),
+            'payload' => serialize($job),
             'job_id' => $job->getId(),
             'exception' => serialize($ex),
             'message' => $ex->getMessage(),
@@ -65,22 +65,16 @@ class RedisQueue implements Queue
             return null;
         }
 
-        $parsed = json_decode($data, true);
+        $decoded = json_decode($data, true);
 
-        $unserializedJob = $parsed['job'];
-
-        if (!$unserializedJob) {
-            return null;
+        if (!$decoded) {
+            throw new RuntimeException('Decoding failed');
         }
 
-        $job = unserialize($unserializedJob);
-
-        if ($job === false && !$this->isEmpty()) {
-            throw new RuntimeException('Deserialization failed');
-        }
+        $job = unserialize($decoded['payload']);
 
         if ($job === false) {
-            return null;
+            throw new RuntimeException('Deserialization failed');
         }
 
         return $job;

@@ -12,11 +12,11 @@ class DatabaseQueue implements Queue
     public function __construct(private mysqli $mysql)
     {
         if ($this->mysql->connect_error) {
-            die("Connection failed: " . $this->mysql->connect_error);
+            throw new Exception("Connection failed: " . $this->mysql->connect_error);
         }
     }
 
-    public function push(Job $job)
+    public function push(Job $job): void
     {
         $job->setId(uniqid());
 
@@ -98,12 +98,8 @@ class DatabaseQueue implements Queue
 
         $job = unserialize($row['payload']);
 
-        if ($job === false && !$this->isEmpty()) {
-            throw new RuntimeException('Deserialization failed');
-        }
-
         if ($job === false) {
-            return null;
+            throw new RuntimeException('Deserialization failed');
         }
 
         $query = $this->mysql->prepare("delete from $table where id = ?");

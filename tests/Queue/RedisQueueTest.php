@@ -9,6 +9,6 @@ class RedisQueueTest extends BaseQueueTest
 {
     protected function createQueue(): Queue
     {
-        return QueueFactory::make();
+        return (new QueueFactory)->make();
     }
 }
