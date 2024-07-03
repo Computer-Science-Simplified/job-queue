@@ -12,7 +12,13 @@ class DatabaseQueue extends Queue
 
     public function __construct()
     {
-        $this->mysql = new mysqli('127.0.0.1', 'root', 'root', 'example', 33060);
+        $this->mysql = new mysqli(
+            $_ENV['DB_HOST'],
+            $_ENV['DB_USERNAME'],
+            $_ENV['DB_PASSWORD'],
+            $_ENV['DB_DATABASE'],
+            $_ENV['DB_PORT'],
+        );
 
         if ($this->mysql->connect_error) {
             die("Connection failed: " . $this->mysql->connect_error);
@@ -45,6 +51,14 @@ class DatabaseQueue extends Queue
         $row = $result->fetch_assoc();
 
         $job = unserialize($row['payload']);
+
+        if ($job === false && !$this->isEmpty()) {
+            throw new RuntimeException('Deserialization failed');
+        }
+
+        if ($job === false) {
+            return null;
+        }
 
         $sql = "delete from jobs where id = ?";
 

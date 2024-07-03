@@ -15,9 +15,8 @@ class RedisQueue extends Queue
     public function __construct()
     {
         $this->redis = new Redis([
-            'host' => '127.0.0.1',
-            'port' => 63790,
-            'connectTimeout' => 2.5,
+            'host' => $_ENV['REDIS_HOST'],
+            'port' => (int) $_ENV['REDIS_PORT'],
         ]);
     }
 
