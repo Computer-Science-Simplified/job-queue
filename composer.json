@@ -1,0 +1,26 @@
+{
+    "name": "computersciencesimplified/job-queue",
+    "version": "1.0.0",
+    "autoload": {
+        "psr-4": {
+            "Computersciencesimplified\\JobQueue\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "martinjoo",
+            "email": "hello@computersciencesimplified.io"
+        }
+    ],
+    "require": {
+        "php": "8.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.2"
+    }
+}
