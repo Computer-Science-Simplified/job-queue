@@ -9,6 +9,10 @@ use RuntimeException;
 
 class DatabaseQueue implements Queue
 {
+    private const QUEUE_TABLE = 'jobs';
+
+    private const DEAD_LETTER_QUEUE_TABLE = 'failed_jobs';
+
     public function __construct(private mysqli $mysql)
     {
         if ($this->mysql->connect_error) {
@@ -18,6 +22,8 @@ class DatabaseQueue implements Queue
 
     public function push(Job $job)
     {
+        $job->setId(uniqid());
+
         $payload = serialize($job);
 
         $createdAt = date('Y-m-d H:i:s');
@@ -35,7 +41,58 @@ class DatabaseQueue implements Queue
 
     public function pop(): ?Job
     {
-        $result = $this->mysql->query("select id, payload from jobs order by id asc limit 1");
+        return $this->popFrom(self::QUEUE_TABLE);
+    }
+
+    public function isEmpty(): bool
+    {
+        $result = $this->mysql->query("select count(id) as count from jobs");
+
+        $row = $result->fetch_assoc();
+
+        return ((int) $row['count']) === 0;
+    }
+
+    #[\Override] public function failed(Job $job, Exception $ex): void
+    {
+        $sql = "insert into failed_jobs(job_id, payload, exception, message, failed_at) values(?, ?, ?, ?, ?)";
+
+        $query = $this->mysql->prepare($sql);
+
+        $serializedJob = serialize($job);
+
+        $serializedEx = serialize($ex);
+
+        $message = $ex->getMessage();
+
+        $failedAt = date('Y-m-d H:i:s');
+
+        $jobId = $job->getId();
+
+        $query->bind_param("sssss",  $jobId,$serializedJob, $serializedEx, $message, $failedAt);
+
+        if (!$query->execute()) {
+            throw new RuntimeException('Unable to execute query');
+        }
+    }
+
+    #[\Override] public function isDeadLetterQueueEmpty(): bool
+    {
+        $result = $this->mysql->query("select count(id) as count from failed_jobs");
+
+        $row = $result->fetch_assoc();
+
+        return ((int) $row['count']) === 0;
+    }
+
+    #[\Override] public function popDeadLetterQueue(): ?Job
+    {
+        return $this->popFrom(self::DEAD_LETTER_QUEUE_TABLE);
+    }
+
+    private function popFrom(string $table): ?Job
+    {
+        $result = $this->mysql->query("select id, payload from $table order by id asc limit 1");
 
         $row = $result->fetch_assoc();
 
@@ -53,42 +110,12 @@ class DatabaseQueue implements Queue
             return null;
         }
 
-        $query = $this->mysql->prepare("delete from jobs where id = ?");
+        $query = $this->mysql->prepare("delete from $table where id = ?");
 
         $query->bind_param("i", $row['id']);
 
         $query->execute();
 
         return $job;
-    }
-
-    public function isEmpty(): bool
-    {
-        $result = $this->mysql->query("select count(id) as count from jobs");
-
-        $row = $result->fetch_assoc();
-
-        return ((int) $row['count']) === 0;
-    }
-
-    #[\Override] public function failed(Job $job, Exception $ex): void
-    {
-        $sql = "insert into failed_jobs(job, exception, message, failed_at) values(?, ?, ?, ?)";
-
-        $query = $this->mysql->prepare($sql);
-
-        $serializedJob = serialize($job);
-
-        $serializedEx = serialize($ex);
-
-        $message = $ex->getMessage();
-
-        $failedAt = date('Y-m-d H:i:s');
-
-        $query->bind_param("ssss", $serializedJob, $serializedEx, $message, $failedAt);
-
-        if (!$query->execute()) {
-            throw new RuntimeException('Unable to execute query');
-        }
     }
 }
