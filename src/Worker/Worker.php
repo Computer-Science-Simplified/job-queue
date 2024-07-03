@@ -3,17 +3,15 @@
 namespace Computersciencesimplified\JobQueue\Worker;
 
 use Computersciencesimplified\JobQueue\Queue\Queue;
-use Computersciencesimplified\JobQueue\Queue\RedisQueue;
+use Computersciencesimplified\JobQueue\Queue\QueueFactory;
 
 class Worker
 {
     private Queue $queue;
 
-    public function __construct(string $queueDriver)
+    public function __construct()
     {
-        $this->queue = match ($queueDriver) {
-            'redis' => new RedisQueue()
-        };
+        $this->queue = QueueFactory::make();
     }
 
     public function work(): void
