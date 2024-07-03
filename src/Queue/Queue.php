@@ -18,4 +18,8 @@ interface Queue
     public function isDeadLetterQueueEmpty(): bool;
 
     public function popDeadLetterQueue(): ?Job;
+
+    public function getQueueName(): string;
+
+    public function getDeadLetterQueueName(): string;
 }
