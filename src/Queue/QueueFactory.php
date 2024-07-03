@@ -12,7 +12,6 @@ class QueueFactory
         return match ($_ENV['QUEUE_DRIVER']) {
             'redis' => self::makeRedisQueue(),
             'database' => self::makeDatabaseQueue(),
-            'array' => new ArrayQueue(),
             default => new \UnexpectedValueException("Queue driver [" . $_ENV['QUEUE_DRIVER'] . "] is invalid"),
         };
     }

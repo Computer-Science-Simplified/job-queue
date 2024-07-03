@@ -26,13 +26,13 @@ abstract class BaseQueueTest extends TestCase
     {
         $queue = $this->createQueue();
 
-        $queue->push(new TestJob(1));
-        $queue->push(new TestJob(2));
-        $queue->push(new TestJob(3));
+        $queue->push(new TestJob('first'));
+        $queue->push(new TestJob('second'));
+        $queue->push(new TestJob('third'));
 
-        $this->assertSame(1, ($queue->pop())->id);
-        $this->assertSame(2, ($queue->pop())->id);
-        $this->assertSame(3, ($queue->pop())->id);
+        $this->assertSame('first', ($queue->pop())->title);
+        $this->assertSame('second', ($queue->pop())->title);
+        $this->assertSame('third', ($queue->pop())->title);
 
         $this->assertTrue($queue->isEmpty());
 

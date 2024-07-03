@@ -6,7 +6,7 @@ use Computersciencesimplified\JobQueue\Job\Job;
 
 class TestJob extends Job
 {
-    public function __construct(public int $id)
+    public function __construct(public string $title)
     {
     }
 
