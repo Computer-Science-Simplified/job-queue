@@ -22,7 +22,7 @@ class DatabaseQueue implements Queue
 
         $createdAt = date('Y-m-d H:i:s');
 
-        $sql = "INSERT INTO jobs(payload, created_at) values(?, ?)";
+        $sql = "insert into jobs(payload, created_at) values(?, ?)";
 
         $query = $this->mysql->prepare($sql);
 
@@ -73,6 +73,22 @@ class DatabaseQueue implements Queue
 
     #[\Override] public function failed(Job $job, Exception $ex): void
     {
-        // TODO: Implement failed() method.
+        $sql = "insert into failed_jobs(job, exception, message, failed_at) values(?, ?, ?, ?)";
+
+        $query = $this->mysql->prepare($sql);
+
+        $serializedJob = serialize($job);
+
+        $serializedEx = serialize($ex);
+
+        $message = $ex->getMessage();
+
+        $failedAt = date('Y-m-d H:i:s');
+
+        $query->bind_param("ssss", $serializedJob, $serializedEx, $message, $failedAt);
+
+        if (!$query->execute()) {
+            throw new RuntimeException('Unable to execute query');
+        }
     }
 }
