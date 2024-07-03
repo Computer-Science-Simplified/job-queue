@@ -13,7 +13,7 @@ class ArrayQueue extends Queue
         $this->jobs[] = $job;
     }
 
-    public function pop(): Job
+    public function pop(): ?Job
     {
         return array_shift($this->jobs);
     }

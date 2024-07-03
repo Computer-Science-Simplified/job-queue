@@ -26,5 +26,7 @@ abstract class BaseQueueTest extends TestCase
         $this->assertSame(3, ($queue->pop())->id);
 
         $this->assertTrue($queue->isEmpty());
+
+        $this->assertNull($queue->pop());
     }
 }

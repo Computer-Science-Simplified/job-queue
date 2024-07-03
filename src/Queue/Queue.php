@@ -8,7 +8,7 @@ abstract class Queue
 {
     abstract public function push(Job  $job);
 
-    abstract public function pop(): Job;
+    abstract public function pop(): ?Job;
 
     abstract public function isEmpty(): bool;
 }
