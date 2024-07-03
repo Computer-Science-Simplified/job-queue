@@ -8,16 +8,10 @@ use Redis;
 
 class RedisQueue extends Queue
 {
-    private Redis $redis;
-
     static string $REDIS_KEY = 'queue';
 
-    public function __construct()
+    public function __construct(private Redis $redis)
     {
-        $this->redis = new Redis([
-            'host' => $_ENV['REDIS_HOST'],
-            'port' => (int) $_ENV['REDIS_PORT'],
-        ]);
     }
 
     public function push(Job $job)

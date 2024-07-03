@@ -8,18 +8,8 @@ use RuntimeException;
 
 class DatabaseQueue extends Queue
 {
-    private mysqli $mysql;
-
-    public function __construct()
+    public function __construct(private mysqli $mysql)
     {
-        $this->mysql = new mysqli(
-            $_ENV['DB_HOST'],
-            $_ENV['DB_USERNAME'],
-            $_ENV['DB_PASSWORD'],
-            $_ENV['DB_DATABASE'],
-            $_ENV['DB_PORT'],
-        );
-
         if ($this->mysql->connect_error) {
             die("Connection failed: " . $this->mysql->connect_error);
         }
