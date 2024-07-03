@@ -4,7 +4,7 @@ namespace Computersciencesimplified\JobQueue\Job;
 
 use Exception;
 
-class ExampleJob implements Job
+class ExampleJob extends Job
 {
     public function __construct(private string $name)
     {

@@ -14,4 +14,8 @@ interface Queue
     public function isEmpty(): bool;
 
     public function failed(Job $job, Exception $ex): void;
+
+    public function isDeadLetterQueueEmpty(): bool;
+
+    public function popDeadLetterQueue(): ?Job;
 }

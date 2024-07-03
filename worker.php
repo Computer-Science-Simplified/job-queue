@@ -7,4 +7,8 @@ $dotenv->load();
 
 $worker = new \Computersciencesimplified\JobQueue\Worker\Worker();
 
-$worker->work();
+if ($argc === 2 && $argv[1] === 'retry') {
+    $worker->retry();
+} else {
+    $worker->work();
+}

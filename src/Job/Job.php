@@ -2,7 +2,19 @@
 
 namespace Computersciencesimplified\JobQueue\Job;
 
-interface Job
+abstract class Job
 {
-    public function execute(): void;
+    protected string $id;
+
+    abstract public function execute(): void;
+
+    public function setId(string $id): void
+    {
+        $this->id = $id;
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
 }

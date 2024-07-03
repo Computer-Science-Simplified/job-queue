@@ -19,7 +19,11 @@ class RedisQueue implements Queue
 
     public function push(Job $job)
     {
-        $result = $this->redis->rPush(self::QUEUE_KEY, serialize($job));
+        $job->setId(uniqid());
+
+        $result = $this->redis->rPush(self::QUEUE_KEY, json_encode([
+            'job' => serialize($job),
+        ]));
 
         if ($result === false) {
             throw new RuntimeException('Pushing failed');
@@ -28,7 +32,46 @@ class RedisQueue implements Queue
 
     public function pop(): ?Job
     {
-        $unserializedJob = $this->redis->lPop(self::QUEUE_KEY);
+        return $this->popFrom(self::QUEUE_KEY);
+    }
+
+    public function isEmpty(): bool
+    {
+        return $this->redis->lLen(self::QUEUE_KEY) === 0;
+    }
+
+    #[\Override] public function failed(Job $job, Exception $ex): void
+    {
+        $this->redis->rPush(self::DEAD_LETTER_QUEUE_KEY, json_encode([
+            'job' => serialize($job),
+            'job_id' => $job->getId(),
+            'exception' => serialize($ex),
+            'message' => $ex->getMessage(),
+            'failed_at' => date('Y-m-d H:i:s'),
+        ]));
+    }
+
+    #[\Override] public function isDeadLetterQueueEmpty(): bool
+    {
+        return $this->redis->lLen(self::DEAD_LETTER_QUEUE_KEY) === 0;
+    }
+
+    #[\Override] public function popDeadLetterQueue(): ?Job
+    {
+        return $this->popFrom(self::DEAD_LETTER_QUEUE_KEY);
+    }
+
+    private function popFrom(string $queue): ?Job
+    {
+        $data = $this->redis->lPop($queue);
+
+        if (!$data) {
+            return null;
+        }
+
+        $parsed = json_decode($data, true);
+
+        $unserializedJob = $parsed['job'];
 
         if (!$unserializedJob) {
             return null;
@@ -45,20 +88,5 @@ class RedisQueue implements Queue
         }
 
         return $job;
-    }
-
-    public function isEmpty(): bool
-    {
-        return $this->redis->lLen(self::QUEUE_KEY) === 0;
-    }
-
-    #[\Override] public function failed(Job $job, Exception $ex): void
-    {
-        $this->redis->rPush(self::DEAD_LETTER_QUEUE_KEY, json_encode([
-            'job' => serialize($job),
-            'exception' => serialize($ex),
-            'message' => $ex->getMessage(),
-            'failed_at' => date('Y-m-d H:i:s'),
-        ]));
     }
 }
