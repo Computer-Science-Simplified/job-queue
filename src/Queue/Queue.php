@@ -4,11 +4,11 @@ namespace Computersciencesimplified\JobQueue\Queue;
 
 use Computersciencesimplified\JobQueue\Job\Job;
 
-abstract class Queue
+interface Queue
 {
-    abstract public function push(Job  $job);
+    public function push(Job  $job);
 
-    abstract public function pop(): ?Job;
+    public function pop(): ?Job;
 
-    abstract public function isEmpty(): bool;
+    public function isEmpty(): bool;
 }

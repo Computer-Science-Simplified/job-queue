@@ -17,7 +17,7 @@ class QueueFactory
         };
     }
 
-    private static function makeRedisQueue()
+    private static function makeRedisQueue(): Queue
     {
         $redis = new Redis([
             'host' => $_ENV['REDIS_HOST'],
@@ -27,7 +27,7 @@ class QueueFactory
         return new RedisQueue($redis);
     }
 
-    private static function makeDatabaseQueue()
+    private static function makeDatabaseQueue(): Queue
     {
         $mysql = new mysqli(
             $_ENV['DB_HOST'],

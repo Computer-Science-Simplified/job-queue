@@ -6,7 +6,7 @@ use Computersciencesimplified\JobQueue\Job\Job;
 use mysqli;
 use RuntimeException;
 
-class DatabaseQueue extends Queue
+class DatabaseQueue implements Queue
 {
     public function __construct(private mysqli $mysql)
     {

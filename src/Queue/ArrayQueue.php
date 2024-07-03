@@ -4,7 +4,7 @@ namespace Computersciencesimplified\JobQueue\Queue;
 
 use Computersciencesimplified\JobQueue\Job\Job;
 
-class ArrayQueue extends Queue
+class ArrayQueue implements Queue
 {
     private array $jobs = [];
 

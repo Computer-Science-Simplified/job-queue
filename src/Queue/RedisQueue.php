@@ -6,7 +6,7 @@ use Computersciencesimplified\JobQueue\Job\Job;
 use RuntimeException;
 use Redis;
 
-class RedisQueue extends Queue
+class RedisQueue implements Queue
 {
     static string $REDIS_KEY = 'queue';
 

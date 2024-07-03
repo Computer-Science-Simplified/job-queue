@@ -2,14 +2,23 @@
 
 namespace Tests\Queue;
 
-use Computersciencesimplified\JobQueue\Queue\ArrayQueue;
 use Computersciencesimplified\JobQueue\Queue\Queue;
+use Dotenv\Dotenv;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Job\TestJob;
 
 abstract class BaseQueueTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../..', '.env.testing');
+
+        $dotenv->load();
+    }
+
     abstract protected function createQueue(): Queue;
 
     #[Test]
