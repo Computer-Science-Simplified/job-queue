@@ -2,13 +2,13 @@
 
 namespace Tests\Queue;
 
-use Computersciencesimplified\JobQueue\Queue\ArrayQueue;
 use Computersciencesimplified\JobQueue\Queue\Queue;
+use Computersciencesimplified\JobQueue\Queue\RedisQueue;
 
-class ArrayQueueTest extends BaseQueueTest
+class RedisQueueTest extends BaseQueueTest
 {
     protected function createQueue(): Queue
     {
-        return new ArrayQueue();
+        return new RedisQueue();
     }
 }
