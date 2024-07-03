@@ -3,6 +3,7 @@
 namespace Computersciencesimplified\JobQueue\Queue;
 
 use Computersciencesimplified\JobQueue\Job\Job;
+use Exception;
 
 class ArrayQueue implements Queue
 {
@@ -21,5 +22,10 @@ class ArrayQueue implements Queue
     public function isEmpty(): bool
     {
         return count($this->jobs) === 0;
+    }
+
+    #[\Override] public function failed(Job $job, Exception $ex): void
+    {
+        throw $ex;
     }
 }

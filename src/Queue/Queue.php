@@ -3,6 +3,7 @@
 namespace Computersciencesimplified\JobQueue\Queue;
 
 use Computersciencesimplified\JobQueue\Job\Job;
+use Exception;
 
 interface Queue
 {
@@ -11,4 +12,6 @@ interface Queue
     public function pop(): ?Job;
 
     public function isEmpty(): bool;
+
+    public function failed(Job $job, Exception $ex): void;
 }

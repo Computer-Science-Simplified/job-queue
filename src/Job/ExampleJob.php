@@ -2,6 +2,8 @@
 
 namespace Computersciencesimplified\JobQueue\Job;
 
+use Exception;
+
 class ExampleJob implements Job
 {
     public function __construct(private string $name)
@@ -10,6 +12,10 @@ class ExampleJob implements Job
 
     public function execute(): void
     {
-        var_dump('Hi ' . $this->name);
+        if ($this->name === 'Joe') {
+            sleep(2);
+
+            throw new Exception('Unable to process Joe');
+        }
     }
 }

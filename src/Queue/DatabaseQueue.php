@@ -3,6 +3,7 @@
 namespace Computersciencesimplified\JobQueue\Queue;
 
 use Computersciencesimplified\JobQueue\Job\Job;
+use Exception;
 use mysqli;
 use RuntimeException;
 
@@ -68,5 +69,10 @@ class DatabaseQueue implements Queue
         $row = $result->fetch_assoc();
 
         return ((int) $row['count']) === 0;
+    }
+
+    #[\Override] public function failed(Job $job, Exception $ex): void
+    {
+        // TODO: Implement failed() method.
     }
 }
