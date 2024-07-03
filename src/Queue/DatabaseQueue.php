@@ -34,11 +34,13 @@ class DatabaseQueue extends Queue
 
     public function pop(): ?Job
     {
-        $sql = "select id, payload from jobs order by id asc limit 1";
-
-        $result = $this->mysql->query($sql);
+        $result = $this->mysql->query("select id, payload from jobs order by id asc limit 1");
 
         $row = $result->fetch_assoc();
+
+        if (!$row) {
+            return null;
+        }
 
         $job = unserialize($row['payload']);
 
@@ -50,9 +52,7 @@ class DatabaseQueue extends Queue
             return null;
         }
 
-        $sql = "delete from jobs where id = ?";
-
-        $query = $this->mysql->prepare($sql);
+        $query = $this->mysql->prepare("delete from jobs where id = ?");
 
         $query->bind_param("i", $row['id']);
 
@@ -63,9 +63,7 @@ class DatabaseQueue extends Queue
 
     public function isEmpty(): bool
     {
-        $sql = "select count(id) as count from jobs";
-
-        $result = $this->mysql->query($sql);
+        $result = $this->mysql->query("select count(id) as count from jobs");
 
         $row = $result->fetch_assoc();
 

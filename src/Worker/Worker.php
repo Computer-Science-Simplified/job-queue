@@ -22,7 +22,7 @@ class Worker
             if (!$this->queue->isEmpty()) {
                 $job = $this->queue->pop();
 
-                $job->execute();
+                $job?->execute();
             }
         }
     }

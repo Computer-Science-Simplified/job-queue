@@ -25,7 +25,13 @@ class RedisQueue extends Queue
 
     public function pop(): ?Job
     {
-        $job = unserialize($this->redis->lPop(self::$REDIS_KEY));
+        $unserializedJob = $this->redis->lPop(self::$REDIS_KEY);
+
+        if (!$unserializedJob) {
+            return null;
+        }
+
+        $job = unserialize($unserializedJob);
 
         if ($job === false && !$this->isEmpty()) {
             throw new RuntimeException('Deserialization failed');
