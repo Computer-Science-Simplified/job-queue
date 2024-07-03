@@ -17,7 +17,7 @@ class RedisQueue implements Queue
     {
         $job->setId(uniqid());
 
-        $result = $this->redis->rPush($this->getQueueName(), json_encode([
+        $result = $this->redis->rPush('queue', json_encode([
             'payload' => serialize($job),
         ]));
 
@@ -28,17 +28,17 @@ class RedisQueue implements Queue
 
     public function pop(): ?Job
     {
-        return $this->popFrom($this->getQueueName());
+        return $this->popFrom('queue');
     }
 
     public function isEmpty(): bool
     {
-        return $this->redis->lLen($this->getQueueName()) === 0;
+        return $this->redis->lLen('queue') === 0;
     }
 
     #[\Override] public function failed(Job $job, Exception $ex): void
     {
-        $this->redis->rPush($this->getDeadLetterQueueName(), json_encode([
+        $this->redis->rPush('dead_letter_queue', json_encode([
             'payload' => serialize($job),
             'job_id' => $job->getId(),
             'exception' => serialize($ex),
@@ -49,12 +49,12 @@ class RedisQueue implements Queue
 
     #[\Override] public function isDeadLetterQueueEmpty(): bool
     {
-        return $this->redis->lLen($this->getDeadLetterQueueName()) === 0;
+        return $this->redis->lLen('dead_letter_queue') === 0;
     }
 
     #[\Override] public function popDeadLetterQueue(): ?Job
     {
-        return $this->popFrom($this->getDeadLetterQueueName());
+        return $this->popFrom('dead_letter_queue');
     }
 
     private function popFrom(string $queue): ?Job
@@ -78,15 +78,5 @@ class RedisQueue implements Queue
         }
 
         return $job;
-    }
-
-    #[\Override] public function getQueueName(): string
-    {
-        return 'queue';
-    }
-
-    #[\Override] public function getDeadLetterQueueName(): string
-    {
-        return 'dead_letter_queue';
     }
 }

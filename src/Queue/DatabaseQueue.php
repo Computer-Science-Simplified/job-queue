@@ -24,7 +24,7 @@ class DatabaseQueue implements Queue
 
         $createdAt = date('Y-m-d H:i:s');
 
-        $sql = "insert into {$this->getQueueName()}(payload, created_at) values(?, ?)";
+        $sql = "insert into jobs(payload, created_at) values(?, ?)";
 
         $query = $this->mysql->prepare($sql);
 
@@ -37,12 +37,12 @@ class DatabaseQueue implements Queue
 
     public function pop(): ?Job
     {
-        return $this->popFrom($this->getQueueName());
+        return $this->popFrom('jobs');
     }
 
     public function isEmpty(): bool
     {
-        $result = $this->mysql->query("select count(id) as count from " . $this->getQueueName());
+        $result = $this->mysql->query("select count(id) as count from jobs");
 
         $row = $result->fetch_assoc();
 
@@ -51,7 +51,7 @@ class DatabaseQueue implements Queue
 
     #[\Override] public function failed(Job $job, Exception $ex): void
     {
-        $sql = "insert into {$this->getDeadLetterQueueName()}(job_id, payload, exception, message, failed_at) values(?, ?, ?, ?, ?)";
+        $sql = "insert into failed_jobs(job_id, payload, exception, message, failed_at) values(?, ?, ?, ?, ?)";
 
         $query = $this->mysql->prepare($sql);
 
@@ -74,7 +74,7 @@ class DatabaseQueue implements Queue
 
     #[\Override] public function isDeadLetterQueueEmpty(): bool
     {
-        $result = $this->mysql->query("select count(id) as count from " . $this->getDeadLetterQueueName());
+        $result = $this->mysql->query("select count(id) as count from failed_jobs");
 
         $row = $result->fetch_assoc();
 
@@ -83,7 +83,7 @@ class DatabaseQueue implements Queue
 
     #[\Override] public function popDeadLetterQueue(): ?Job
     {
-        return $this->popFrom($this->getDeadLetterQueueName());
+        return $this->popFrom('failed_jobs');
     }
 
     private function popFrom(string $table): ?Job
@@ -109,15 +109,5 @@ class DatabaseQueue implements Queue
         $query->execute();
 
         return $job;
-    }
-
-    #[\Override] public function getQueueName(): string
-    {
-        return 'jobs';
-    }
-
-    #[\Override] public function getDeadLetterQueueName(): string
-    {
-        return 'failed_jobs';
     }
 }
